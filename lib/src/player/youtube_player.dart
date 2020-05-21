@@ -228,7 +228,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
         ),
       );
       if (controller.value.isFullScreen) {
-        Navigator.pop(context);
+          Navigator.pop(context);
       } else {
         controller.pause();
         var _cachedPosition = controller.value.position;
@@ -244,8 +244,8 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
           bufferIndicator: widget.bufferIndicator,
           controlsTimeOut: widget.controlsTimeOut,
           liveUIColor: widget.liveUIColor,
-          onReady: () =>
-              controller.load(_videoId, startAt: _cachedPosition.inSeconds),
+          onReady: () => controller.load(controller.initialVideoId,
+              startAt: _cachedPosition.inSeconds),
           progressColors: widget.progressColors,
           thumbnailUrl: widget.thumbnailUrl,
           topActions: widget.topActions,
