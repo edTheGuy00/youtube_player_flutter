@@ -11,7 +11,7 @@ import '../utils/youtube_player_controller.dart';
 class PlayPauseButton extends StatefulWidget {
   /// Overrides the default [YoutubePlayerController].
   final YoutubePlayerController controller;
-
+  final double iconSize;
   /// Defines placeholder widget to show when player is in buffering state.
   final Widget bufferIndicator;
 
@@ -19,6 +19,7 @@ class PlayPauseButton extends StatefulWidget {
   PlayPauseButton({
     this.controller,
     this.bufferIndicator,
+    this.iconSize=60
   });
 
   @override
@@ -70,14 +71,10 @@ class _PlayPauseButtonState extends State<PlayPauseButton>
   @override
   Widget build(BuildContext context) {
     final _playerState = _controller.value.playerState;
-    if ((!_controller.flags.autoPlay && _controller.value.isReady) ||
-        _playerState == PlayerState.playing ||
-        _playerState == PlayerState.paused) {
-      return Visibility(
-        visible: _playerState == PlayerState.cued ||
-            !_controller.value.isPlaying ||
-            _controller.value.isControlsVisible,
-        child: Material(
+    // if ((!_controller.flags.autoPlay && _controller.value.isReady) ||
+    //     _playerState == PlayerState.playing ||
+    //     _playerState == PlayerState.paused) {
+      return Material(
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(50.0),
@@ -88,19 +85,19 @@ class _PlayPauseButtonState extends State<PlayPauseButton>
               icon: AnimatedIcons.play_pause,
               progress: _animController.view,
               color: Colors.white,
-              size: 60.0,
+              size: widget.iconSize,
             ),
           ),
-        ),
+      
       );
-    }
-    return widget.bufferIndicator ??
-        Container(
-          width: 70.0,
-          height: 70.0,
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation(Colors.white),
-          ),
-        );
+    // }
+    // return widget.bufferIndicator ??
+    //     Container(
+    //       width: 70.0,
+    //       height: 70.0,
+    //       child: CircularProgressIndicator(
+    //         valueColor: AlwaysStoppedAnimation(Colors.white),
+    //       ),
+    //     );
   }
 }

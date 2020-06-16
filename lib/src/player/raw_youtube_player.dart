@@ -289,7 +289,33 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                         'autoplay': ${boolean(value: controller.flags.autoPlay)}
                     },
                     events: {
-                        onReady: function(event) { Ready.postMessage("Ready"); },
+                        onReady: function(event) { 
+                          var ifr = document.getElementsByTagName('iframe')[0];
+                          for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-chrome-top"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-button"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-chrome-controls"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-right-controls"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-youtube-button"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("yt-uix-sessionlink"))
+                          {
+                            element.style.display="none";
+                            }
+                          Ready.postMessage("Ready"); },
                         onStateChange: function(event) { sendPlayerStateChange(event.data); },
                         onPlaybackQualityChange: function(event) { PlaybackQualityChange.postMessage(event.data); },
                         onPlaybackRateChange: function(event) { PlaybackRateChange.postMessage(event.data); },
@@ -326,11 +352,66 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
 
             function play() {
                 player.playVideo();
+                 var ifr = document.getElementsByTagName('iframe')[0];
+                          for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-chrome-top"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-button"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-chrome-controls"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-right-controls"))
+                          {
+                            element.style.display="none";
+                            }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-youtube-button"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("yt-uix-sessionlink"))
+                          {
+                            element.style.display="none";
+                            }
                 return '';
             }
 
             function pause() {
                 player.pauseVideo();
+                 var ifr = document.getElementsByTagName('iframe')[0];
+                          for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-chrome-top"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-button"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-chrome-controls"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-right-controls"))
+                          {
+                            element.style.display="none";
+                            }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-youtube-button"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("yt-uix-sessionlink"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-pause-overlay"))
+                          {
+                            element.style.display="none";
+                            }
+                            
                 return '';
             }
 
