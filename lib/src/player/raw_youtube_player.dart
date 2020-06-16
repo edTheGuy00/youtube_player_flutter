@@ -315,6 +315,26 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                           {
                             element.style.display="none";
                             }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-pause-overlay"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-scroll-min"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-scroll-max"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-related-title"))
+                          {
+                            element.style.display="none";
+                            }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-suggestions"))
+                          {
+                            element.style.display="none";
+                            }
                           Ready.postMessage("Ready"); },
                         onStateChange: function(event) { sendPlayerStateChange(event.data); },
                         onPlaybackQualityChange: function(event) { PlaybackQualityChange.postMessage(event.data); },
@@ -377,6 +397,26 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                           {
                             element.style.display="none";
                             }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-pause-overlay"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-scroll-min"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-scroll-max"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-related-title"))
+                          {
+                            element.style.display="none";
+                            }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-suggestions"))
+                          {
+                            element.style.display="none";
+                            }
                 return '';
             }
 
@@ -408,6 +448,22 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                             element.style.display="none";
                             }
                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-pause-overlay"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-scroll-min"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-scroll-max"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-related-title"))
+                          {
+                            element.style.display="none";
+                            }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-suggestions"))
                           {
                             element.style.display="none";
                             }
