@@ -78,9 +78,16 @@ class _PlayPauseButtonState extends State<PlayPauseButton>
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(50.0),
-            onTap: () => _controller.value.isPlaying
-                ? _controller.pause()
-                : _controller.play(),
+            onTap: () {
+             if (!_controller.value.isReady) {
+               return;
+             }
+              if (_controller.value.isPlaying) {
+_controller.pause();
+              } else {
+                _controller.play();
+              }
+            },
             child: AnimatedIcon(
               icon: AnimatedIcons.play_pause,
               progress: _animController.view,
