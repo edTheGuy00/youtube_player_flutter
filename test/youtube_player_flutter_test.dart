@@ -23,7 +23,7 @@ Widget buildPlayer({
   void Function() onReady,
   ProgressBarColors progressBarColors,
   Color progressIndicatorColor,
-  String thumbnailUrl,
+  Widget thumbnail,
   EdgeInsetsGeometry actionsPadding = const EdgeInsets.all(8.0),
 }) {
   return TestApp(
@@ -40,7 +40,7 @@ Widget buildPlayer({
       onReady: onReady,
       progressColors: progressBarColors,
       progressIndicatorColor: progressIndicatorColor,
-      thumbnailUrl: thumbnailUrl,
+      thumbnail: thumbnail,
       topActions: topActions,
     ),
   );
@@ -49,10 +49,7 @@ Widget buildPlayer({
 YoutubePlayerController createController([YoutubePlayerFlags flags]) {
   return YoutubePlayerController(
     initialVideoId: 'p2lYr3vM_1w',
-    flags: flags ??
-        YoutubePlayerFlags(
-          hideThumbnail: true,
-        ),
+    flags: flags ?? const YoutubePlayerFlags(hideThumbnail: true),
   );
 }
 

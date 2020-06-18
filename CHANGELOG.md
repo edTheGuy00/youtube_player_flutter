@@ -1,3 +1,24 @@
+## 7.0.0+3
+* Fixed `onExitFullScreen` callback.
+
+## 7.0.0+2
+* Added `onEnterFullScreen` & `onExitFullScreen` callback to `YoutubePlayerBuilder`.
+* Player switches back to normal mode on system back, if on fullscreen.
+* Added `thumbnail` parameter to `YoutubePlayer`, removed `thumbnailUrl`. Now any widget can be used as thumbnail.
+* Fixed issues with progress colors.
+
+## 7.0.0+1
+* **(Fixed)** random crashes
+* **(Fixed)** issues with orientation
+* **(Improvements)** Added automatic fullscreen toggle wrt to orientation change
+* Added [`YoutubePlayerBuilder`](https://pub.dev/documentation/youtube_player_flutter/latest/youtube_player_flutter/YoutubePlayerBuilder-class.html)
+* **(Fixed)** progress color being ignored [#221](https://github.com/sarbagyastha/youtube_player_flutter/pull/221)
+
+**BREAKING CHANGE**
+* Requires **iOS**: `--ios-language swift`, Xcode version `>= 11`
+* Requires **Android**: `minSdkVersion 17`
+* Removed exported `WebView` widget
+
 ## 6.1.1
 * Removed `forceHideAnnotation`.
 
