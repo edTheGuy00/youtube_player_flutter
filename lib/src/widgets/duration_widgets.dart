@@ -54,8 +54,13 @@ class _CurrentPositionState extends State<CurrentPosition> {
       durationFormatter(
         _controller.value.position?.inMilliseconds ?? 0,
       ),
+<<<<<<< HEAD
       style: TextStyle(
         color: Colors.grey[400],
+=======
+      style: const TextStyle(
+        color: Colors.white,
+>>>>>>> ec83fcda419fdacee5f5d79f644e00888d8cc270
         fontSize: 12.0,
       ),
     );
