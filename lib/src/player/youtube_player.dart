@@ -312,12 +312,12 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
               },
             ),
           ),
-          // if (!controller.flags.hideThumbnail)
-          //   AnimatedOpacity(
-          //     opacity: controller.value.isPlaying ? 0 : 1,
-          //     duration: const Duration(milliseconds: 300),
-          //     child: widget.thumbnail ?? _thumbnail,
-          //   ),
+          if (!controller.flags.hideThumbnail)
+            AnimatedOpacity(
+              opacity: controller.value.isPlaying ? 0 : 1,
+              duration: const Duration(milliseconds: 300),
+              child: widget.thumbnail ?? _thumbnail,
+            ),
           // if (!controller.value.isFullScreen &&
           //     !controller.flags.hideControls &&
           //     controller.value.position > const Duration(milliseconds: 100) &&
