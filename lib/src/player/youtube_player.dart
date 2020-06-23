@@ -312,89 +312,100 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
               },
             ),
           ),
-          if (!controller.flags.hideThumbnail)
-            AnimatedOpacity(
-              opacity: controller.value.isPlaying ? 0 : 1,
-              duration: const Duration(milliseconds: 300),
-              child: widget.thumbnail ?? _thumbnail,
-            ),
-          if (!controller.value.isFullScreen &&
-              !controller.flags.hideControls &&
-              controller.value.position > const Duration(milliseconds: 100) &&
-              !controller.value.isControlsVisible &&
-              widget.showVideoProgressIndicator &&
-              !controller.flags.isLive)
-            Positioned(
-              bottom: -7.0,
-              left: -7.0,
-              right: -7.0,
-              child: IgnorePointer(
-                ignoring: true,
-                child: ProgressBar(
-                  colors: widget.progressColors.copyWith(
-                    handleColor: Colors.transparent,
-                  ),
-                ),
-              ),
-            ),
-          if (!controller.flags.hideControls) ...[
-            TouchShutter(
-              disableDragSeek: controller.flags.disableDragSeek,
-              timeOut: widget.controlsTimeOut,
-            ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: AnimatedOpacity(
-                opacity: !controller.flags.hideControls &&
-                        controller.value.isControlsVisible
-                    ? 1
-                    : 0,
-                duration: const Duration(milliseconds: 300),
-                child: controller.flags.isLive
-                    ? LiveBottomBar(liveUIColor: widget.liveUIColor)
-                    : Padding(
-                        padding: widget.bottomActions == null
-                            ? const EdgeInsets.all(0.0)
-                            : widget.actionsPadding,
-                        child: Row(
-                          children: widget.bottomActions ??
-                              [
-                                const SizedBox(width: 14.0),
-                                CurrentPosition(),
-                                const SizedBox(width: 8.0),
-                                ProgressBar(
-                                  isExpanded: true,
-                                  colors: widget.progressColors,
-                                ),
-                                RemainingDuration(),
-                                const PlaybackSpeedButton(),
-                                FullScreenButton(),
-                              ],
-                        ),
-                      ),
-              ),
-            ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: AnimatedOpacity(
-                opacity: !controller.flags.hideControls &&
-                        controller.value.isControlsVisible
-                    ? 1
-                    : 0,
-                duration: const Duration(milliseconds: 300),
-                child: Padding(
-                  padding: widget.actionsPadding,
-                  child: Row(
-                    children: widget.topActions ?? [Container()],
-                  ),
-                ),
-              ),
-            ),
-          ],
+          // if (!controller.flags.hideThumbnail)
+          //   AnimatedOpacity(
+          //     opacity: controller.value.isPlaying ? 0 : 1,
+          //     duration: const Duration(milliseconds: 300),
+          //     child: widget.thumbnail ?? _thumbnail,
+          //   ),
+          // if (!controller.value.isFullScreen &&
+          //     !controller.flags.hideControls &&
+          //     controller.value.position > const Duration(milliseconds: 100) &&
+          //     !controller.value.isControlsVisible &&
+          //     widget.showVideoProgressIndicator &&
+          //     !controller.flags.isLive)
+          //   Positioned(
+          //     bottom: -7.0,
+          //     left: -7.0,
+          //     right: -7.0,
+          //     child: IgnorePointer(
+          //       ignoring: true,
+          //       child: ProgressBar(
+          //         colors: widget.progressColors.copyWith(
+          //           handleColor: Colors.transparent,
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // if (!controller.flags.hideControls) ...[
+          //   Positioned(
+          //     top: 0,
+          //     left: 0,
+          //     height: MediaQuery.of(context).size.height,
+          //     width: MediaQuery.of(context).size.width,
+          //     child: TouchShutter(
+          //     disableDragSeek: controller.flags.disableDragSeek,
+          //     timeOut: widget.controlsTimeOut,
+          //   ),),
+          //   Positioned(
+          //     bottom: 0,
+          //     left: 0,
+          //     right: 0,
+          //     child: Container(
+          //       color: Colors.purple.withOpacity(0.3),
+          //       child: AnimatedOpacity(
+          //       opacity: !controller.flags.hideControls &&
+          //               controller.value.isControlsVisible
+          //           ? 1
+          //           : 0,
+          //       duration: const Duration(milliseconds: 300),
+          //       child: controller.flags.isLive
+          //           ? LiveBottomBar(liveUIColor: widget.liveUIColor)
+          //           : Padding(
+          //               padding: widget.bottomActions == null
+          //                   ? const EdgeInsets.all(0.0)
+          //                   : widget.actionsPadding,
+          //               child: Row(
+          //                 children: widget.bottomActions ??
+          //                     [
+          //                       const SizedBox(width: 14.0),
+          //                       CurrentPosition(),
+          //                       const SizedBox(width: 8.0),
+          //                       ProgressBar(
+          //                         isExpanded: true,
+          //                         colors: widget.progressColors,
+          //                       ),
+          //                       RemainingDuration(),
+          //                       const PlaybackSpeedButton(),
+          //                       FullScreenButton(),
+          //                     ],
+          //               ),
+          //             ),
+          //     ),),
+          //   ),
+          //   Positioned(
+          //     top: 0,
+          //     left: 0,
+          //     right: 0,
+          //     child: 
+          //     Container(
+          //       color: Colors.green.withOpacity(0.4),
+          //       child:
+          //     AnimatedOpacity(
+          //       opacity: !controller.flags.hideControls &&
+          //               controller.value.isControlsVisible
+          //           ? 1
+          //           : 0,
+          //       duration: const Duration(milliseconds: 300),
+          //       child: Padding(
+          //         padding: widget.actionsPadding,
+          //         child: Row(
+          //           children: widget.topActions ?? [Container()],
+          //         ),
+          //       ),
+          //     ),),
+          //   ),
+          // ],
           // if (!controller.flags.hideControls)
           //   Center(
           //     child: PlayPauseButton(),
