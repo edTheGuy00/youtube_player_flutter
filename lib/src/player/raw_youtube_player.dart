@@ -199,7 +199,7 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                 controller.updateValue(
                   controller.value.copyWith(
                     position: Duration(milliseconds: position.floor()),
-                    buffered: buffered.toDouble(),
+                    buffered: buffered != null ? buffered.toDouble() : controller.value.buffered,
                   ),
                 );
               },
@@ -276,18 +276,18 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                           {
                             element.style.display="none";
                             }
-                          //   for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-right-controls"))
-                          // {
-                          //   element.style.display="none";
-                          //   }
-                          //   for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-youtube-button"))
-                          // {
-                          //   element.style.display="none";
-                          //   }
-                          //   for (let element of ifr.contentWindow.document.getElementsByClassName("yt-uix-sessionlink"))
-                          // {
-                          //   element.style.display="none";
-                          //   }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-right-controls"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-youtube-button"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("yt-uix-sessionlink"))
+                          {
+                            element.style.display="none";
+                            }
                              for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-pause-overlay"))
                           {
                             element.style.display="none";
@@ -357,18 +357,18 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                           {
                             element.style.display="none";
                             }
-                          //   for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-right-controls"))
-                          // {
-                          //   element.style.display="none";
-                          //   }
-                          //    for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-youtube-button"))
-                          // {
-                          //   element.style.display="none";
-                          //   }
-                          //   for (let element of ifr.contentWindow.document.getElementsByClassName("yt-uix-sessionlink"))
-                          // {
-                          //   element.style.display="none";
-                          //   }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-right-controls"))
+                          {
+                            element.style.display="none";
+                            }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-youtube-button"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("yt-uix-sessionlink"))
+                          {
+                            element.style.display="none";
+                            }
                              for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-pause-overlay"))
                           {
                             element.style.display="none";
@@ -407,18 +407,18 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                           {
                             element.style.display="none";
                             }
-                          //   for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-right-controls"))
-                          // {
-                          //   element.style.display="none";
-                          //   }
-                          //    for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-youtube-button"))
-                          // {
-                          //   element.style.display="none";
-                          //   }
-                          //   for (let element of ifr.contentWindow.document.getElementsByClassName("yt-uix-sessionlink"))
-                          // {
-                          //   element.style.display="none";
-                          //   }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-right-controls"))
+                          {
+                            element.style.display="none";
+                            }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-youtube-button"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("yt-uix-sessionlink"))
+                          {
+                            element.style.display="none";
+                            }
                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-pause-overlay"))
                           {
                             element.style.display="none";

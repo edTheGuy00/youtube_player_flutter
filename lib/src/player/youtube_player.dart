@@ -312,12 +312,27 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
               },
             ),
           ),
-          if (!controller.flags.hideThumbnail)
-            AnimatedOpacity(
-              opacity: controller.value.isPlaying ? 0 : 1,
-              duration: const Duration(milliseconds: 300),
-              child: widget.thumbnail ?? _thumbnail,
+          // if (!controller.flags.hideThumbnail)
+          //   AnimatedOpacity(
+          //     opacity: controller.value.isPlaying ? 0 : 1,
+          //     duration: const Duration(milliseconds: 300),
+          //     child: widget.thumbnail ?? _thumbnail,
+          //   ),
+          AnimatedOpacity(
+            opacity: controller.value.isReady ? 0 : 1,
+            duration: const Duration(milliseconds: 300),
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              color: Colors.black,
+              child: const Center(
+                child: const CircularProgressIndicator(
+                  backgroundColor: Colors.black,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
             ),
+          ),
           // if (!controller.value.isFullScreen &&
           //     !controller.flags.hideControls &&
           //     controller.value.position > const Duration(milliseconds: 100) &&
@@ -387,7 +402,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
           //     top: 0,
           //     left: 0,
           //     right: 0,
-          //     child: 
+          //     child:
           //     Container(
           //       color: Colors.green.withOpacity(0.4),
           //       child:
@@ -410,32 +425,33 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
           //   Center(
           //     child: PlayPauseButton(),
           //   ),
-          if (controller.value.hasError) errorWidget,
+          if (controller.value.hasError)
+            errorWidget,
         ],
       ),
     );
   }
 
-  Widget get _thumbnail => Image.network(
-        YoutubePlayer.getThumbnail(
-          videoId: controller.metadata.videoId.isEmpty
-              ? controller.initialVideoId
-              : controller.metadata.videoId,
-        ),
-        fit: BoxFit.cover,
-        loadingBuilder: (_, child, progress) =>
-            progress == null ? child : Container(color: Colors.black),
-        errorBuilder: (context, _, __) => Image.network(
-          YoutubePlayer.getThumbnail(
-            videoId: controller.metadata.videoId.isEmpty
-                ? controller.initialVideoId
-                : controller.metadata.videoId,
-            webp: false,
-          ),
-          fit: BoxFit.cover,
-          loadingBuilder: (_, child, progress) =>
-              progress == null ? child : Container(color: Colors.black),
-          errorBuilder: (context, _, __) => Container(),
-        ),
-      );
+  // Widget get _thumbnail => Image.network(
+  //       YoutubePlayer.getThumbnail(
+  //         videoId: controller.metadata.videoId.isEmpty
+  //             ? controller.initialVideoId
+  //             : controller.metadata.videoId,
+  //       ),
+  //       fit: BoxFit.cover,
+  //       loadingBuilder: (_, child, progress) =>
+  //           progress == null ? child : Container(color: Colors.black),
+  //       errorBuilder: (context, _, __) => Image.network(
+  //         YoutubePlayer.getThumbnail(
+  //           videoId: controller.metadata.videoId.isEmpty
+  //               ? controller.initialVideoId
+  //               : controller.metadata.videoId,
+  //           webp: false,
+  //         ),
+  //         fit: BoxFit.cover,
+  //         loadingBuilder: (_, child, progress) =>
+  //             progress == null ? child : Container(color: Colors.black),
+  //         errorBuilder: (context, _, __) => Container(),
+  //       ),
+  //     );
 }

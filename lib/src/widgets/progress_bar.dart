@@ -79,6 +79,7 @@ class _ProgressBarState extends State<ProgressBar> {
 
   bool _touchDown = false;
   Duration _position;
+  bool _closed = false;
 
   @override
   void didChangeDependencies() {
@@ -99,10 +100,12 @@ class _ProgressBarState extends State<ProgressBar> {
   @override
   void dispose() {
     _controller?.removeListener(positionListener);
+    _closed = true;
     super.dispose();
   }
 
   void positionListener() {
+    if (_closed) return;
     var _totalDuration = _controller.metadata.duration?.inMilliseconds;
     if (mounted && !_totalDuration.isNaN && _totalDuration != 0) {
       setState(() {
