@@ -193,6 +193,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
 
   double _aspectRatio;
   bool _initialLoad = true;
+  bool _initialPlay = true;
 
   @override
   void initState() {
@@ -219,6 +220,9 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
           controller.value.copyWith(isControlsVisible: true),
         );
       }
+    }
+    if (controller.value.isPlaying && _initialPlay) {
+      _initialPlay = false;
     }
     if (mounted) setState(() {});
   }
@@ -319,7 +323,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
           //     child: widget.thumbnail ?? _thumbnail,
           //   ),
           AnimatedOpacity(
-            opacity: controller.value.isReady ? 0 : 1,
+            opacity: _initialPlay ? 1 : 0,
             duration: const Duration(milliseconds: 300),
             child: Container(
               width: MediaQuery.of(context).size.width,
