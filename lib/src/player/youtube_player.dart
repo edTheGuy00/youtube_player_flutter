@@ -211,7 +211,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   }
 
   void listener() async {
-   if (!_initialPlay && !_hasEnded && controller.value.position.inSeconds == controller.value.metaData.duration.inSeconds) {
+   if (!_initialPlay && !_hasEnded && controller.value.position.inSeconds >= controller.value.metaData.duration.inSeconds - 1) {
       _hasEnded = true;
       if (widget.onEnded != null) {
         widget.onEnded(controller.value.metaData);
