@@ -35,6 +35,7 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
   YoutubePlayerController controller;
   PlayerState _cachedPlayerState;
   bool _isPlayerReady = false;
+  bool _onLoadStopCalled = false;
 
   @override
   void initState() {
@@ -94,7 +95,14 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
           webController
             ..addJavaScriptHandler(
               handlerName: 'Ready',
-              callback: (_) => _isPlayerReady = true,
+              callback: (_) {
+                _isPlayerReady = true;
+                if (_onLoadStopCalled) {
+                  controller.updateValue(
+                    controller.value.copyWith(isReady: true),
+                  );
+                }
+              },
             )
             ..addJavaScriptHandler(
               handlerName: 'StateChange',
@@ -206,6 +214,7 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
             );
         },
         onLoadStop: (_, __) {
+          _onLoadStopCalled = true;
           if (_isPlayerReady) {
             controller.updateValue(
               controller.value.copyWith(isReady: true),
@@ -230,6 +239,7 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                 position: fixed;
                 height: 100%;
                 width: 100%;
+                pointer-events: none;
             }
         </style>
         <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
@@ -259,7 +269,9 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                         'modestbranding': 1,
                         'cc_load_policy': ${boolean(value: controller.flags.enableCaption)},
                         'cc_lang_pref': '${controller.flags.captionLanguage}',
-                        'autoplay': ${boolean(value: controller.flags.autoPlay)}
+                        'autoplay': ${boolean(value: controller.flags.autoPlay)},
+                        'start': ${controller.flags.startAt},
+                        'end': ${controller.flags.endAt}
                     },
                     events: {
                         onReady: function(event) { 
@@ -444,12 +456,26 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
             }
 
             function loadById(id, startAt, endAt) {
-                player.loadVideoById(id, startAt, endAt);
+                var loadParams = {
+                  videoId: id,
+                  startSeconds: startAt
+                };
+                if (endAt) {
+                  loadParams.endSeconds = endAt;
+                }
+                player.loadVideoById(loadParams);
                 return '';
             }
 
             function cueById(id, startAt, endAt) {
-                player.cueVideoById(id, startAt, endAt);
+                var cueParams = {
+                  videoId: id,
+                  startSeconds: startAt
+                };
+                if (endAt) {
+                  cueParams.endSeconds = endAt;
+                }
+                player.cueVideoById(cueParams);
                 return '';
             }
             

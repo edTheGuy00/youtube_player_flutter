@@ -92,7 +92,7 @@ class YoutubePlayer extends StatefulWidget {
   /// {@template youtube_player_flutter.onEnded}
   /// Called when player had ended playing a video.
   ///
-  /// Returns [YoutubeMetaData] for the video that has just ended playing.
+  /// Returns [YoutubeMetaData] for the video that meta just ended playing.
   /// {@endtemplate}
   final void Function(YoutubeMetaData metaData) onEnded;
 
@@ -194,6 +194,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   double _aspectRatio;
   bool _initialLoad = true;
   bool _initialPlay = true;
+  bool _hasEnded = false;
 
   @override
   void initState() {
@@ -210,6 +211,12 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   }
 
   void listener() async {
+   if (!_initialPlay && !_hasEnded && controller.value.position.inSeconds == controller.value.metaData.duration.inSeconds) {
+      _hasEnded = true;
+      if (widget.onEnded != null) {
+        widget.onEnded(controller.value.metaData);
+      }
+    }
     if (controller.value.isReady && _initialLoad) {
       _initialLoad = false;
       if (controller.flags.autoPlay) controller.play();
@@ -308,11 +315,11 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
               key: widget.key,
               onEnded: (YoutubeMetaData metaData) {
                 if (controller.flags.loop) {
-                  controller.load(controller.metadata.videoId);
+                  controller.load(controller.metadata.videoId, startAt: controller.flags.startAt, endAt: controller.flags.endAt);
                 }
-                if (widget.onEnded != null) {
-                  widget.onEnded(metaData);
-                }
+                // if (widget.onEnded != null) {
+                //   widget.onEnded(metaData);
+                // }
               },
             ),
           ),
