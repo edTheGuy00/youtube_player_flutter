@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:webview_media/platform_interface.dart';
-import 'package:webview_media/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import '../enums/playback_rate.dart';
 import '../enums/player_state.dart';
@@ -30,10 +30,8 @@ class YoutubePlayerValue {
     this.playbackQuality,
     this.errorCode = 0,
     this.webViewController,
-    this.toggleFullScreen = false,
     this.isDragging = false,
     this.metaData = const YoutubeMetaData(),
-    this.webResourceError,
   });
 
   /// Returns true when the player is ready to play videos.
@@ -71,20 +69,14 @@ class YoutubePlayerValue {
   /// See the onError Section.
   final int errorCode;
 
-  /// Reports error related toloading page resources.
-  final WebResourceError webResourceError;
-
   /// Reports the [WebViewController].
-  final WebViewController webViewController;
+  final InAppWebViewController webViewController;
 
   /// Returns true is player has errors.
-  bool get hasError => errorCode != 0 && webResourceError == null;
+  bool get hasError => errorCode != 0;
 
   /// Reports the current playback quality.
   final String playbackQuality;
-
-  /// Returns true if fullscreen mode is just toggled.
-  final bool toggleFullScreen;
 
   /// Returns true if [ProgressBar] is being dragged.
   final bool isDragging;
@@ -108,11 +100,9 @@ class YoutubePlayerValue {
     double playbackRate,
     String playbackQuality,
     int errorCode,
-    WebViewController webViewController,
-    bool toggleFullScreen,
+    InAppWebViewController webViewController,
     bool isDragging,
     YoutubeMetaData metaData,
-    WebResourceError webResourceError,
   }) {
     return YoutubePlayerValue(
       isReady: isReady ?? this.isReady,
@@ -128,10 +118,8 @@ class YoutubePlayerValue {
       playbackQuality: playbackQuality ?? this.playbackQuality,
       errorCode: errorCode ?? this.errorCode,
       webViewController: webViewController ?? this.webViewController,
-      toggleFullScreen: toggleFullScreen ?? this.toggleFullScreen,
       isDragging: isDragging ?? this.isDragging,
       metaData: metaData ?? this.metaData,
-      webResourceError: webResourceError ?? this.webResourceError,
     );
   }
 
@@ -148,7 +136,6 @@ class YoutubePlayerValue {
         'playerState: $playerState, '
         'playbackRate: $playbackRate, '
         'playbackQuality: $playbackQuality, '
-        'webResourceError: ${webResourceError?.description}, '
         'errorCode: $errorCode)';
   }
 }
@@ -183,7 +170,7 @@ class YoutubePlayerController extends ValueNotifier<YoutubePlayerValue> {
 
   _callMethod(String methodString) {
     if (value.isReady) {
-      value.webViewController?.evaluateJavascript(methodString);
+      value.webViewController?.evaluateJavascript(source: methodString);
     } else {
       print('The controller is not ready for method calls.');
     }
@@ -200,22 +187,30 @@ class YoutubePlayerController extends ValueNotifier<YoutubePlayerValue> {
   void pause() => _callMethod('pause()');
 
   /// Loads the video as per the [videoId] provided.
-  void load(String videoId, {int startAt = 0}) {
+  void load(String videoId, {int startAt = 0, int endAt}) {
+    var loadParams = 'videoId:"$videoId",startSeconds:$startAt';
+    if (endAt != null && endAt > startAt) {
+      loadParams += ',endSeconds:$endAt';
+    }
     _updateValues(videoId);
     if (value.errorCode == 1) {
       pause();
     } else {
-      _callMethod('loadById("$videoId",$startAt)');
+      _callMethod('loadById("$videoId",$startAt,$endAt)');
     }
   }
 
   /// Cues the video as per the [videoId] provided.
-  void cue(String videoId, {int startAt = 0}) {
+  void cue(String videoId, {int startAt = 0, int endAt}) {
+    var cueParams = 'videoId:"$videoId",startSeconds:$startAt';
+    if (endAt != null && endAt > startAt) {
+      cueParams += ',endSeconds:$endAt';
+    }
     _updateValues(videoId);
     if (value.errorCode == 1) {
       pause();
     } else {
-      _callMethod('cueById("$videoId",$startAt)');
+      _callMethod('cueById("$videoId",$startAt,$endAt)');
     }
   }
 
@@ -278,8 +273,17 @@ class YoutubePlayerController extends ValueNotifier<YoutubePlayerValue> {
   void setPlaybackRate(double rate) => _callMethod('setPlaybackRate($rate)');
 
   /// Toggles the player's full screen mode.
-  void toggleFullScreenMode() =>
-      updateValue(value.copyWith(toggleFullScreen: true));
+  void toggleFullScreenMode() {
+    updateValue(value.copyWith(isFullScreen: !value.isFullScreen));
+    // if (value.isFullScreen) {
+    //   SystemChrome.setPreferredOrientations([
+    //     DeviceOrientation.landscapeLeft,
+    //     DeviceOrientation.landscapeRight,
+    //   ]);
+    // } else {
+    //   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    // }
+  }
 
   /// MetaData for the currently loaded or cued video.
   YoutubeMetaData get metadata => value.metaData;
@@ -297,15 +301,13 @@ class YoutubePlayerController extends ValueNotifier<YoutubePlayerValue> {
           isControlsVisible: false,
           playerState: PlayerState.unknown,
           hasPlayed: false,
-          position: Duration(),
+          position: Duration.zero,
           buffered: 0.0,
           errorCode: 0,
-          toggleFullScreen: false,
           isLoaded: false,
           isPlaying: false,
           isDragging: false,
           metaData: const YoutubeMetaData(),
-          webResourceError: null,
         ),
       );
 }

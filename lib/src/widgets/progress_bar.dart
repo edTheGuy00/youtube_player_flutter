@@ -27,6 +27,20 @@ class ProgressBarColors {
     this.bufferedColor,
     this.handleColor,
   });
+
+  ///
+  ProgressBarColors copyWith({
+    Color backgroundColor,
+    Color playedColor,
+    Color bufferedColor,
+    Color handleColor,
+  }) =>
+      ProgressBarColors(
+        backgroundColor: backgroundColor ?? this.backgroundColor,
+        handleColor: handleColor ?? this.handleColor,
+        bufferedColor: bufferedColor ?? this.bufferedColor,
+        playedColor: playedColor ?? this.playedColor,
+      );
 }
 
 /// A widget to display video progress bar.
@@ -65,6 +79,7 @@ class _ProgressBarState extends State<ProgressBar> {
 
   bool _touchDown = false;
   Duration _position;
+  bool _closed = false;
 
   @override
   void didChangeDependencies() {
@@ -85,10 +100,12 @@ class _ProgressBarState extends State<ProgressBar> {
   @override
   void dispose() {
     _controller?.removeListener(positionListener);
+    _closed = true;
     super.dispose();
   }
 
   void positionListener() {
+    if (_closed) return;
     var _totalDuration = _controller.metadata.duration?.inMilliseconds;
     if (mounted && !_totalDuration.isNaN && _totalDuration != 0) {
       setState(() {
@@ -154,7 +171,7 @@ class _ProgressBarState extends State<ProgressBar> {
       onHorizontalDragCancel: _dragEndActions,
       child: Container(
         color: Colors.transparent,
-        constraints: BoxConstraints.expand(height: 7.0 * 2),
+        constraints: const BoxConstraints.expand(height: 7.0 * 2),
         child: CustomPaint(
           painter: _ProgressBarPainter(
             progressWidth: 2.0,

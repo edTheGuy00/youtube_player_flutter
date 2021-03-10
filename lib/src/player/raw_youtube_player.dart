@@ -2,12 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:webview_media/platform_interface.dart';
-import 'package:webview_media/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import '../enums/player_state.dart';
 import '../utils/youtube_meta_data.dart';
@@ -35,11 +32,10 @@ class RawYoutubePlayer extends StatefulWidget {
 
 class _RawYoutubePlayerState extends State<RawYoutubePlayer>
     with WidgetsBindingObserver {
-  final Completer<WebViewController> _webController =
-      Completer<WebViewController>();
   YoutubePlayerController controller;
   PlayerState _cachedPlayerState;
   bool _isPlayerReady = false;
+  bool _onLoadStopCalled = false;
 
   @override
   void initState() {
@@ -77,165 +73,152 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
     controller = YoutubePlayerController.of(context);
     return IgnorePointer(
       ignoring: true,
-      child: WebView(
+      child: InAppWebView(
         key: widget.key,
-        userAgent: userAgent,
-        initialData: WebData(
+        initialData: InAppWebViewInitialData(
           data: player,
           baseUrl: 'https://www.youtube.com',
           encoding: 'utf-8',
           mimeType: 'text/html',
         ),
-        onWebResourceError: (WebResourceError error) {
-          controller
-              .updateValue(controller.value.copyWith(webResourceError: error));
-        },
-        javascriptMode: JavascriptMode.unrestricted,
-        initialMediaPlaybackPolicy: AutoMediaPlaybackPolicy.always_allow,
-        javascriptChannels: {
-          JavascriptChannel(
-            name: 'Ready',
-            onMessageReceived: (JavascriptMessage message) {
-              _isPlayerReady = true;
-            },
+        initialOptions: InAppWebViewGroupOptions(
+          ios: IOSInAppWebViewOptions(allowsInlineMediaPlayback: true),
+          crossPlatform: InAppWebViewOptions(
+            userAgent: userAgent,
+            mediaPlaybackRequiresUserGesture: false,
+            transparentBackground: true,
           ),
-          JavascriptChannel(
-            name: 'StateChange',
-            onMessageReceived: (JavascriptMessage message) {
-              switch (message.message) {
-                case '-1':
-                  controller.updateValue(
-                    controller.value.copyWith(
-                      playerState: PlayerState.unStarted,
-                      isLoaded: true,
-                    ),
-                  );
-                  break;
-                case '0':
-                  if (widget.onEnded != null) {
-                    widget.onEnded(controller.metadata);
-                  }
-                  controller.updateValue(
-                    controller.value.copyWith(
-                      playerState: PlayerState.ended,
-                    ),
-                  );
-                  break;
-                case '1':
-                  controller.updateValue(
-                    controller.value.copyWith(
-                      playerState: PlayerState.playing,
-                      isPlaying: true,
-                      hasPlayed: true,
-                      errorCode: 0,
-                    ),
-                  );
-                  break;
-                case '2':
-                  controller.updateValue(
-                    controller.value.copyWith(
-                      playerState: PlayerState.paused,
-                      isPlaying: false,
-                    ),
-                  );
-                  break;
-                case '3':
-                  controller.updateValue(
-                    controller.value.copyWith(
-                      playerState: PlayerState.buffering,
-                    ),
-                  );
-                  break;
-                case '5':
-                  controller.updateValue(
-                    controller.value.copyWith(
-                      playerState: PlayerState.cued,
-                    ),
-                  );
-                  break;
-                default:
-                  throw Exception("Invalid player state obtained.");
-              }
-            },
-          ),
-          JavascriptChannel(
-            name: 'PlaybackQualityChange',
-            onMessageReceived: (JavascriptMessage message) {
-              controller.updateValue(
-                controller.value.copyWith(
-                  playbackQuality: message.message,
-                ),
-              );
-            },
-          ),
-          JavascriptChannel(
-            name: 'PlaybackRateChange',
-            onMessageReceived: (JavascriptMessage message) {
-              controller.updateValue(
-                controller.value.copyWith(
-                  playbackRate: double.tryParse(message.message) ?? 1.0,
-                ),
-              );
-            },
-          ),
-          JavascriptChannel(
-            name: 'Errors',
-            onMessageReceived: (JavascriptMessage message) {
-              controller.updateValue(
-                controller.value
-                    .copyWith(errorCode: int.tryParse(message.message) ?? 0),
-              );
-            },
-          ),
-          JavascriptChannel(
-            name: 'VideoData',
-            onMessageReceived: (JavascriptMessage message) {
-              controller.updateValue(
-                controller.value.copyWith(
-                  metaData: YoutubeMetaData.fromRawData(message.message),
-                ),
-              );
-            },
-          ),
-          JavascriptChannel(
-            name: 'CurrentTime',
-            onMessageReceived: (JavascriptMessage message) {
-              var position = (double.tryParse(message.message) ?? 0) * 1000;
-              controller.updateValue(
-                controller.value.copyWith(
-                  position: Duration(milliseconds: position.floor()),
-                ),
-              );
-            },
-          ),
-          JavascriptChannel(
-            name: 'LoadedFraction',
-            onMessageReceived: (JavascriptMessage message) {
-              controller.updateValue(
-                controller.value.copyWith(
-                  buffered: double.tryParse(message.message) ?? 0,
-                ),
-              );
-            },
-          ),
-        },
+        ),
         onWebViewCreated: (webController) {
-          _webController.complete(webController);
-          _webController.future.then(
-            (webViewController) {
-              controller.updateValue(
-                controller.value.copyWith(webViewController: webViewController),
-              );
-            },
-          );
+          controller.updateValue(
+              controller.value.copyWith(webViewController: webController));
+          webController
+            ..addJavaScriptHandler(
+              handlerName: 'Ready',
+              callback: (_) {
+                _isPlayerReady = true;
+                if (_onLoadStopCalled) {
+                  controller.updateValue(
+                    controller.value.copyWith(isReady: true),
+                  );
+                }
+              },
+            )
+            ..addJavaScriptHandler(
+              handlerName: 'StateChange',
+              callback: (args) {
+                switch (args.first as int) {
+                  case -1:
+                    controller.updateValue(
+                      controller.value.copyWith(
+                        playerState: PlayerState.unStarted,
+                        isLoaded: true,
+                      ),
+                    );
+                    break;
+                  case 0:
+                    if (widget.onEnded != null) {
+                      widget.onEnded(controller.metadata);
+                    }
+
+                    controller.updateValue(
+                      controller.value.copyWith(
+                        playerState: PlayerState.ended,
+                      ),
+                    );
+                    break;
+                  case 1:
+                    controller.updateValue(
+                      controller.value.copyWith(
+                        playerState: PlayerState.playing,
+                        isPlaying: true,
+                        hasPlayed: true,
+                        errorCode: 0,
+                      ),
+                    );
+                    break;
+                  case 2:
+                    controller.updateValue(
+                      controller.value.copyWith(
+                        playerState: PlayerState.paused,
+                        isPlaying: false,
+                      ),
+                    );
+                    break;
+                  case 3:
+                    controller.updateValue(
+                      controller.value.copyWith(
+                        playerState: PlayerState.buffering,
+                      ),
+                    );
+                    break;
+                  case 5:
+                    controller.updateValue(
+                      controller.value.copyWith(
+                        playerState: PlayerState.cued,
+                      ),
+                    );
+                    break;
+                  default:
+                    throw Exception("Invalid player state obtained.");
+                }
+              },
+            )
+            ..addJavaScriptHandler(
+              handlerName: 'PlaybackQualityChange',
+              callback: (args) {
+                controller.updateValue(
+                  controller.value
+                      .copyWith(playbackQuality: args.first as String),
+                );
+              },
+            )
+            ..addJavaScriptHandler(
+              handlerName: 'PlaybackRateChange',
+              callback: (args) {
+                final num rate = args.first;
+                controller.updateValue(
+                  controller.value.copyWith(playbackRate: rate.toDouble()),
+                );
+              },
+            )
+            ..addJavaScriptHandler(
+              handlerName: 'Errors',
+              callback: (args) {
+                controller.updateValue(
+                  controller.value.copyWith(errorCode: args.first as int),
+                );
+              },
+            )
+            ..addJavaScriptHandler(
+              handlerName: 'VideoData',
+              callback: (args) {
+                controller.updateValue(
+                  controller.value.copyWith(
+                      metaData: YoutubeMetaData.fromRawData(args.first)),
+                );
+              },
+            )
+            ..addJavaScriptHandler(
+              handlerName: 'VideoTime',
+              callback: (args) {
+                final position = args.first * 1000;
+                final num buffered = args.last;
+                controller.updateValue(
+                  controller.value.copyWith(
+                    position: Duration(milliseconds: position.floor()),
+                    buffered: buffered != null ? buffered.toDouble() : controller.value.buffered,
+                  ),
+                );
+              },
+            );
         },
-        onPageFinished: (_) {
+        onLoadStop: (_, __) {
+          _onLoadStopCalled = true;
           if (_isPlayerReady) {
             controller.updateValue(
               controller.value.copyWith(isReady: true),
             );
-          } else {
-            controller.reload();
           }
         },
       ),
@@ -256,6 +239,7 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                 position: fixed;
                 height: 100%;
                 width: 100%;
+                pointer-events: none;
             }
         </style>
         <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
@@ -274,7 +258,6 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                     height: '100%',
                     width: '100%',
                     videoId: '${controller.initialVideoId}',
-                    host: 'https://www.youtube.com',
                     playerVars: {
                         'controls': 0,
                         'playsinline': 1,
@@ -286,21 +269,69 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                         'modestbranding': 1,
                         'cc_load_policy': ${boolean(value: controller.flags.enableCaption)},
                         'cc_lang_pref': '${controller.flags.captionLanguage}',
-                        'autoplay': ${boolean(value: controller.flags.autoPlay)}
+                        'autoplay': ${boolean(value: controller.flags.autoPlay)},
+                        'start': ${controller.flags.startAt},
+                        'end': ${controller.flags.endAt}
                     },
                     events: {
-                        onReady: function(event) { Ready.postMessage("Ready"); },
+                        onReady: function(event) { 
+                          var ifr = document.getElementsByTagName('iframe')[0];
+                          for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-chrome-top"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-button"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-chrome-controls"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-right-controls"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-youtube-button"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("yt-uix-sessionlink"))
+                          {
+                            element.style.display="none";
+                            }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-pause-overlay"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-scroll-min"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-scroll-max"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-related-title"))
+                          {
+                            element.style.display="none";
+                            }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-suggestions"))
+                          {
+                            element.style.display="none";
+                            }
+                          window.flutter_inappwebview.callHandler('Ready'); },
                         onStateChange: function(event) { sendPlayerStateChange(event.data); },
-                        onPlaybackQualityChange: function(event) { PlaybackQualityChange.postMessage(event.data); },
-                        onPlaybackRateChange: function(event) { PlaybackRateChange.postMessage(event.data); },
-                        onError: function(error) { Errors.postMessage(error.data); }
+                        onPlaybackQualityChange: function(event) { window.flutter_inappwebview.callHandler('PlaybackQualityChange', event.data); },
+                        onPlaybackRateChange: function(event) { window.flutter_inappwebview.callHandler('PlaybackRateChange', event.data); },
+                        onError: function(error) { window.flutter_inappwebview.callHandler('Errors', error.data); }
                     },
                 });
             }
 
             function sendPlayerStateChange(playerState) {
                 clearTimeout(timerId);
-                StateChange.postMessage(playerState);
+                window.flutter_inappwebview.callHandler('StateChange', playerState);
                 if (playerState == 1) {
                     startSendCurrentTimeInterval();
                     sendVideoData(player);
@@ -314,33 +345,137 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                     'author': player.getVideoData().author,
                     'videoId': player.getVideoData().video_id
                 };
-                VideoData.postMessage(JSON.stringify(videoData));
+                window.flutter_inappwebview.callHandler('VideoData', videoData);
             }
 
             function startSendCurrentTimeInterval() {
                 timerId = setInterval(function () {
-                    CurrentTime.postMessage(player.getCurrentTime());
-                    LoadedFraction.postMessage(player.getVideoLoadedFraction());
+                    window.flutter_inappwebview.callHandler('VideoTime', player.getCurrentTime(), player.getVideoLoadedFraction());
                 }, 100);
             }
 
             function play() {
                 player.playVideo();
+                 var ifr = document.getElementsByTagName('iframe')[0];
+                          for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-chrome-top"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-button"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-chrome-controls"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-right-controls"))
+                          {
+                            element.style.display="none";
+                            }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-youtube-button"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("yt-uix-sessionlink"))
+                          {
+                            element.style.display="none";
+                            }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-pause-overlay"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-scroll-min"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-scroll-max"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-related-title"))
+                          {
+                            element.style.display="none";
+                            }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-suggestions"))
+                          {
+                            element.style.display="none";
+                            }
                 return '';
             }
 
             function pause() {
                 player.pauseVideo();
+                 var ifr = document.getElementsByTagName('iframe')[0];
+                          for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-chrome-top"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-button"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-chrome-controls"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-right-controls"))
+                          {
+                            element.style.display="none";
+                            }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-youtube-button"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("yt-uix-sessionlink"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-pause-overlay"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-scroll-min"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-scroll-max"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-related-title"))
+                          {
+                            element.style.display="none";
+                            }
+                             for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-suggestions"))
+                          {
+                            element.style.display="none";
+                            }
+                            
                 return '';
             }
 
             function loadById(id, startAt, endAt) {
-                player.loadVideoById(id, startAt, endAt);
+                var loadParams = {
+                  videoId: id,
+                  startSeconds: startAt
+                };
+                if (endAt) {
+                  loadParams.endSeconds = endAt;
+                }
+                player.loadVideoById(loadParams);
                 return '';
             }
 
             function cueById(id, startAt, endAt) {
-                player.cueVideoById(id, startAt, endAt);
+                var cueParams = {
+                  videoId: id,
+                  startSeconds: startAt
+                };
+                if (endAt) {
+                  cueParams.endSeconds = endAt;
+                }
+                player.cueVideoById(cueParams);
                 return '';
             }
             
