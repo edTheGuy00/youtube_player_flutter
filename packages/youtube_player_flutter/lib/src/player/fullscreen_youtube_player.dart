@@ -113,7 +113,7 @@ class _FullScreenYoutubePlayerState extends State<_FullScreenYoutubePlayer> {
       onReady: widget.onReady,
       onEnded: widget.onEnded,
       progressColors: widget.progressColors,
-      thumbnailUrl: widget.thumbnailUrl,
+      //thumbnailUrl: widget.thumbnailUrl,
       topActions: widget.topActions,
     );
   }
