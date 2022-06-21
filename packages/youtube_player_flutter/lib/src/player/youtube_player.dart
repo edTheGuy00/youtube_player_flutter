@@ -43,7 +43,7 @@ class YoutubePlayer extends StatefulWidget {
   final Key? key;
 
   /// A [YoutubePlayerController] to control the player.
-  final YoutubePlayerController? controller;
+  final YoutubePlayerController controller;
 
   /// {@template youtube_player_flutter.width}
   /// Defines the width of the player.
@@ -187,7 +187,7 @@ class YoutubePlayer extends StatefulWidget {
 }
 
 class _YoutubePlayerState extends State<YoutubePlayer> {
-  YoutubePlayerController? controller;
+  late YoutubePlayerController controller;
 
   late double _aspectRatio;
   bool _initialLoad = true;
@@ -197,39 +197,39 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   @override
   void initState() {
     super.initState();
-    controller = widget.controller?..addListener(listener);
+    controller = widget.controller..addListener(listener);
     _aspectRatio = widget.aspectRatio;
   }
 
   @override
   void didUpdateWidget(YoutubePlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    oldWidget.controller?.removeListener(listener);
-    widget.controller?.addListener(listener);
+    oldWidget.controller.removeListener(listener);
+    widget.controller.addListener(listener);
   }
 
   void listener() async {
     if (!_initialPlay &&
         !_hasEnded &&
-        controller!.value.position.inSeconds >=
-            controller!.value.metaData.duration.inSeconds - 1) {
+        controller.value.position.inSeconds >=
+            controller.value.metaData.duration.inSeconds - 1) {
       _hasEnded = true;
       if (widget.onEnded != null) {
-        widget.onEnded!(controller!.value.metaData);
+        widget.onEnded!(controller.value.metaData);
       }
     }
-    if (controller!.value.isReady && _initialLoad) {
+    if (controller.value.isReady && _initialLoad) {
       _initialLoad = false;
-      if (controller!.flags.autoPlay) controller!.play();
-      if (controller!.flags.mute) controller!.mute();
+      if (controller.flags.autoPlay) controller.play();
+      if (controller.flags.mute) controller.mute();
       if (widget.onReady != null) widget.onReady!();
-      if (controller!.flags.controlsVisibleAtStart) {
-        controller!.updateValue(
-          controller!.value.copyWith(isControlsVisible: true),
+      if (controller.flags.controlsVisibleAtStart) {
+        controller.updateValue(
+          controller.value.copyWith(isControlsVisible: true),
         );
       }
     }
-    if (controller!.value.isPlaying && _initialPlay) {
+    if (controller.value.isPlaying && _initialPlay) {
       _initialPlay = false;
     }
     if (mounted) setState(() {});
@@ -237,7 +237,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
 
   @override
   void dispose() {
-    controller!.removeListener(listener);
+    controller.removeListener(listener);
     super.dispose();
   }
 
@@ -247,7 +247,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
       elevation: 0,
       color: Colors.black,
       child: InheritedYoutubePlayer(
-        controller: controller!,
+        controller: controller,
         child: Container(
           color: Colors.black,
           width: widget.width ?? MediaQuery.of(context).size.width,
@@ -270,9 +270,9 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
                       Expanded(
                         child: Text(
                           errorString(
-                            controller!.value.errorCode,
-                            videoId: controller!.metadata.videoId ??
-                                controller!.initialVideoId,
+                            controller.value.errorCode,
+                            videoId: controller.metadata.videoId ??
+                                controller.initialVideoId,
                           ),
                           style: const TextStyle(
                             color: Colors.white,
@@ -285,7 +285,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
                   ),
                   const SizedBox(height: 16.0),
                   Text(
-                    'Error Code: ${controller!.value.errorCode}',
+                    'Error Code: ${controller.value.errorCode}',
                     style: const TextStyle(
                       color: Colors.grey,
                       fontWeight: FontWeight.w300,
@@ -307,17 +307,17 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
         fit: StackFit.expand,
         children: [
           Transform.scale(
-            scale: controller!.value.isFullScreen
+            scale: controller.value.isFullScreen
                 ? (1 / _aspectRatio * MediaQuery.of(context).size.width) /
                     MediaQuery.of(context).size.height
                 : 1,
             child: RawYoutubePlayer(
               key: widget.key,
               onEnded: (YoutubeMetaData metaData) {
-                if (controller!.flags.loop) {
-                  controller!.load(controller!.metadata.videoId,
-                      startAt: controller!.flags.startAt,
-                      endAt: controller!.flags.endAt);
+                if (controller.flags.loop) {
+                  controller.load(controller.metadata.videoId,
+                      startAt: controller.flags.startAt,
+                      endAt: controller.flags.endAt);
                 }
                 // if (widget.onEnded != null) {
                 //   widget.onEnded(metaData);
@@ -438,7 +438,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
           //   Center(
           //     child: PlayPauseButton(),
           //   ),
-          if (controller!.value.hasError) errorWidget!,
+          if (controller.value.hasError) errorWidget!,
         ],
       ),
     );
