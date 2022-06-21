@@ -3,8 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
 
 import '../enums/thumbnail_quality.dart';
 import '../utils/errors.dart';
@@ -42,17 +40,17 @@ import 'raw_youtube_player.dart';
 ///
 class YoutubePlayer extends StatefulWidget {
   /// Sets [Key] as an identification to underlying web view associated to the player.
-  final Key key;
+  final Key? key;
 
   /// A [YoutubePlayerController] to control the player.
-  final YoutubePlayerController controller;
+  final YoutubePlayerController? controller;
 
   /// {@template youtube_player_flutter.width}
   /// Defines the width of the player.
   ///
   /// Default is devices's width.
   /// {@endtemplate}
-  final double width;
+  final double? width;
 
   /// {@template youtube_player_flutter.aspectRatio}
   /// Defines the aspect ratio to be assigned to the player. This property along with [width] calculates the player size.
@@ -66,64 +64,64 @@ class YoutubePlayer extends StatefulWidget {
   ///
   /// Default is 3 seconds.
   /// {@endtemplate}
-  final Duration controlsTimeOut;
+  final Duration? controlsTimeOut;
 
   /// {@template youtube_player_flutter.bufferIndicator}
   /// Overrides the default buffering indicator for the player.
   /// {@endtemplate}
-  final Widget bufferIndicator;
+  final Widget? bufferIndicator;
 
   /// {@template youtube_player_flutter.progressColors}
   /// Overrides default colors of the progress bar, takes [ProgressColors].
   /// {@endtemplate}
-  final ProgressBarColors progressColors;
+  final ProgressBarColors? progressColors;
 
   /// {@template youtube_player_flutter.progressIndicatorColor}
   /// Overrides default color of progress indicator shown below the player(if enabled).
   /// {@endtemplate}
-  final Color progressIndicatorColor;
+  final Color? progressIndicatorColor;
 
   /// {@template youtube_player_flutter.onReady}
   /// Called when player is ready to perform control methods like:
   /// play(), pause(), load(), cue(), etc.
   /// {@endtemplate}
-  final VoidCallback onReady;
+  final VoidCallback? onReady;
 
   /// {@template youtube_player_flutter.onEnded}
   /// Called when player had ended playing a video.
   ///
   /// Returns [YoutubeMetaData] for the video that meta just ended playing.
   /// {@endtemplate}
-  final void Function(YoutubeMetaData metaData) onEnded;
+  final void Function(YoutubeMetaData metaData)? onEnded;
 
   /// {@template youtube_player_flutter.liveUIColor}
   /// Overrides color of Live UI when enabled.
   /// {@endtemplate}
-  final Color liveUIColor;
+  final Color? liveUIColor;
 
   /// {@template youtube_player_flutter.topActions}
   /// Adds custom top bar widgets.
   /// {@endtemplate}
-  final List<Widget> topActions;
+  final List<Widget>? topActions;
 
   /// {@template youtube_player_flutter.bottomActions}
   /// Adds custom bottom bar widgets.
   /// {@endtemplate}
-  final List<Widget> bottomActions;
+  final List<Widget>? bottomActions;
 
   /// {@template youtube_player_flutter.actionsPadding}
   /// Defines padding for [topActions] and [bottomActions].
   ///
   /// Default is EdgeInsets.all(8.0).
   /// {@endtemplate}
-  final EdgeInsetsGeometry actionsPadding;
+  final EdgeInsetsGeometry? actionsPadding;
 
   /// {@template youtube_player_flutter.thumbnail}
   /// Thumbnail to show when player is loading.
   ///
   /// If not set, default thumbnail of the video is shown.
   /// {@endtemplate}
-  final Widget thumbnail;
+  final Widget? thumbnail;
 
   /// {@template youtube_player_flutter.showVideoProgressIndicator}
   /// Defines whether to show or hide progress indicator below the player.
@@ -135,7 +133,7 @@ class YoutubePlayer extends StatefulWidget {
   /// Creates [YoutubePlayer] widget.
   const YoutubePlayer({
     this.key,
-    @required this.controller,
+    required this.controller,
     this.width,
     this.aspectRatio = 16 / 9,
     this.controlsTimeOut = const Duration(seconds: 3),
@@ -155,7 +153,7 @@ class YoutubePlayer extends StatefulWidget {
   /// Converts fully qualified YouTube Url to video id.
   ///
   /// If videoId is passed as url then no conversion is done.
-  static String convertUrlToId(String url, {bool trimWhitespaces = true}) {
+  static String? convertUrlToId(String url, {bool trimWhitespaces = true}) {
     assert(url?.isNotEmpty ?? false, 'Url cannot be empty');
     if (!url.contains("http") && (url.length == 11)) return url;
     if (trimWhitespaces) url = url.trim();
@@ -167,7 +165,7 @@ class YoutubePlayer extends StatefulWidget {
           r"^https:\/\/(?:www\.|m\.)?youtube(?:-nocookie)?\.com\/embed\/([_\-a-zA-Z0-9]{11}).*$"),
       RegExp(r"^https:\/\/youtu\.be\/([_\-a-zA-Z0-9]{11}).*$")
     ]) {
-      Match match = exp.firstMatch(url);
+      Match? match = exp.firstMatch(url);
       if (match != null && match.groupCount >= 1) return match.group(1);
     }
 
@@ -176,7 +174,7 @@ class YoutubePlayer extends StatefulWidget {
 
   /// Grabs YouTube video's thumbnail for provided video id.
   static String getThumbnail({
-    @required String videoId,
+    required String videoId,
     String quality = ThumbnailQuality.standard,
     bool webp = true,
   }) =>
@@ -189,9 +187,9 @@ class YoutubePlayer extends StatefulWidget {
 }
 
 class _YoutubePlayerState extends State<YoutubePlayer> {
-  YoutubePlayerController controller;
+  YoutubePlayerController? controller;
 
-  double _aspectRatio;
+  late double _aspectRatio;
   bool _initialLoad = true;
   bool _initialPlay = true;
   bool _hasEnded = false;
@@ -199,7 +197,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   @override
   void initState() {
     super.initState();
-    controller = widget.controller..addListener(listener);
+    controller = widget.controller?..addListener(listener);
     _aspectRatio = widget.aspectRatio;
   }
 
@@ -213,25 +211,25 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   void listener() async {
     if (!_initialPlay &&
         !_hasEnded &&
-        controller.value.position.inSeconds >=
-            controller.value.metaData.duration.inSeconds - 1) {
+        controller!.value.position.inSeconds >=
+            controller!.value.metaData.duration.inSeconds - 1) {
       _hasEnded = true;
       if (widget.onEnded != null) {
-        widget.onEnded(controller.value.metaData);
+        widget.onEnded!(controller!.value.metaData);
       }
     }
-    if (controller.value.isReady && _initialLoad) {
+    if (controller!.value.isReady && _initialLoad) {
       _initialLoad = false;
-      if (controller.flags.autoPlay) controller.play();
-      if (controller.flags.mute) controller.mute();
-      if (widget.onReady != null) widget.onReady();
-      if (controller.flags.controlsVisibleAtStart) {
-        controller.updateValue(
-          controller.value.copyWith(isControlsVisible: true),
+      if (controller!.flags.autoPlay) controller!.play();
+      if (controller!.flags.mute) controller!.mute();
+      if (widget.onReady != null) widget.onReady!();
+      if (controller!.flags.controlsVisibleAtStart) {
+        controller!.updateValue(
+          controller!.value.copyWith(isControlsVisible: true),
         );
       }
     }
-    if (controller.value.isPlaying && _initialPlay) {
+    if (controller!.value.isPlaying && _initialPlay) {
       _initialPlay = false;
     }
     if (mounted) setState(() {});
@@ -239,7 +237,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
 
   @override
   void dispose() {
-    controller.removeListener(listener);
+    controller!.removeListener(listener);
     super.dispose();
   }
 
@@ -249,7 +247,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
       elevation: 0,
       color: Colors.black,
       child: InheritedYoutubePlayer(
-        controller: controller,
+        controller: controller!,
         child: Container(
           color: Colors.black,
           width: widget.width ?? MediaQuery.of(context).size.width,
@@ -272,9 +270,9 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
                       Expanded(
                         child: Text(
                           errorString(
-                            controller.value.errorCode,
-                            videoId: controller.metadata.videoId ??
-                                controller.initialVideoId,
+                            controller!.value.errorCode,
+                            videoId: controller!.metadata.videoId ??
+                                controller!.initialVideoId,
                           ),
                           style: const TextStyle(
                             color: Colors.white,
@@ -287,7 +285,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
                   ),
                   const SizedBox(height: 16.0),
                   Text(
-                    'Error Code: ${controller.value.errorCode}',
+                    'Error Code: ${controller!.value.errorCode}',
                     style: const TextStyle(
                       color: Colors.grey,
                       fontWeight: FontWeight.w300,
@@ -302,25 +300,24 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
     );
   }
 
-  Widget _buildPlayer({Widget errorWidget}) {
+  Widget _buildPlayer({Widget? errorWidget}) {
     return AspectRatio(
       aspectRatio: _aspectRatio,
       child: Stack(
         fit: StackFit.expand,
-        overflow: Overflow.visible,
         children: [
           Transform.scale(
-            scale: controller.value.isFullScreen
+            scale: controller!.value.isFullScreen
                 ? (1 / _aspectRatio * MediaQuery.of(context).size.width) /
                     MediaQuery.of(context).size.height
                 : 1,
             child: RawYoutubePlayer(
               key: widget.key,
               onEnded: (YoutubeMetaData metaData) {
-                if (controller.flags.loop) {
-                  controller.load(controller.metadata.videoId,
-                      startAt: controller.flags.startAt,
-                      endAt: controller.flags.endAt);
+                if (controller!.flags.loop) {
+                  controller!.load(controller!.metadata.videoId,
+                      startAt: controller!.flags.startAt,
+                      endAt: controller!.flags.endAt);
                 }
                 // if (widget.onEnded != null) {
                 //   widget.onEnded(metaData);
@@ -441,7 +438,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
           //   Center(
           //     child: PlayPauseButton(),
           //   ),
-          if (controller.value.hasError) errorWidget,
+          if (controller!.value.hasError) errorWidget!,
         ],
       ),
     );

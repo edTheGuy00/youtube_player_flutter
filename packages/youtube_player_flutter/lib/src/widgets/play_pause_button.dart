@@ -10,11 +10,11 @@ import '../utils/youtube_player_controller.dart';
 /// A widget to display play/pause button.
 class PlayPauseButton extends StatefulWidget {
   /// Overrides the default [YoutubePlayerController].
-  final YoutubePlayerController controller;
+  final YoutubePlayerController? controller;
   final double iconSize;
 
   /// Defines placeholder widget to show when player is in buffering state.
-  final Widget bufferIndicator;
+  final Widget? bufferIndicator;
 
   /// Creates [PlayPauseButton] widget.
   PlayPauseButton({this.controller, this.bufferIndicator, this.iconSize = 60});
@@ -25,8 +25,8 @@ class PlayPauseButton extends StatefulWidget {
 
 class _PlayPauseButtonState extends State<PlayPauseButton>
     with TickerProviderStateMixin {
-  YoutubePlayerController _controller;
-  AnimationController _animController;
+  YoutubePlayerController? _controller;
+  late AnimationController _animController;
 
   @override
   void initState() {
@@ -50,8 +50,8 @@ class _PlayPauseButtonState extends State<PlayPauseButton>
       );
       _controller = widget.controller;
     }
-    _controller.removeListener(_playPauseListener);
-    _controller.addListener(_playPauseListener);
+    _controller!.removeListener(_playPauseListener);
+    _controller!.addListener(_playPauseListener);
   }
 
   @override
@@ -61,13 +61,13 @@ class _PlayPauseButtonState extends State<PlayPauseButton>
     super.dispose();
   }
 
-  void _playPauseListener() => _controller.value.isPlaying
+  void _playPauseListener() => _controller!.value.isPlaying
       ? _animController.forward()
       : _animController.reverse();
 
   @override
   Widget build(BuildContext context) {
-    final _playerState = _controller.value.playerState;
+    final _playerState = _controller!.value.playerState;
     // if ((!_controller.flags.autoPlay && _controller.value.isReady) ||
     //     _playerState == PlayerState.playing ||
     //     _playerState == PlayerState.paused) {
@@ -76,13 +76,13 @@ class _PlayPauseButtonState extends State<PlayPauseButton>
       child: InkWell(
         borderRadius: BorderRadius.circular(50.0),
         onTap: () {
-          if (!_controller.value.isReady) {
+          if (!_controller!.value.isReady) {
             return;
           }
-          if (_controller.value.isPlaying) {
-            _controller.pause();
+          if (_controller!.value.isPlaying) {
+            _controller!.pause();
           } else {
-            _controller.play();
+            _controller!.play();
           }
         },
         child: AnimatedIcon(
