@@ -25,7 +25,7 @@ class PlayPauseButton extends StatefulWidget {
 
 class _PlayPauseButtonState extends State<PlayPauseButton>
     with TickerProviderStateMixin {
-  YoutubePlayerController? _controller;
+  late YoutubePlayerController _controller;
   late AnimationController _animController;
 
   @override
@@ -41,33 +41,35 @@ class _PlayPauseButtonState extends State<PlayPauseButton>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _controller = YoutubePlayerController.of(context);
-    if (_controller == null) {
+    final controller = YoutubePlayerController.of(context);
+    if (controller == null) {
       assert(
         widget.controller != null,
         '\n\nNo controller could be found in the provided context.\n\n'
         'Try passing the controller explicitly.',
       );
-      _controller = widget.controller;
+      _controller = widget.controller!;
+    } else {
+      _controller = controller;
     }
-    _controller!.removeListener(_playPauseListener);
-    _controller!.addListener(_playPauseListener);
+    _controller.removeListener(_playPauseListener);
+    _controller.addListener(_playPauseListener);
   }
 
   @override
   void dispose() {
-    _controller?.removeListener(_playPauseListener);
+    _controller.removeListener(_playPauseListener);
     _animController.dispose();
     super.dispose();
   }
 
-  void _playPauseListener() => _controller!.value.isPlaying
+  void _playPauseListener() => _controller.value.isPlaying
       ? _animController.forward()
       : _animController.reverse();
 
   @override
   Widget build(BuildContext context) {
-    final _playerState = _controller!.value.playerState;
+    final _playerState = _controller.value.playerState;
     // if ((!_controller.flags.autoPlay && _controller.value.isReady) ||
     //     _playerState == PlayerState.playing ||
     //     _playerState == PlayerState.paused) {
@@ -76,13 +78,13 @@ class _PlayPauseButtonState extends State<PlayPauseButton>
       child: InkWell(
         borderRadius: BorderRadius.circular(50.0),
         onTap: () {
-          if (!_controller!.value.isReady) {
+          if (!_controller.value.isReady) {
             return;
           }
-          if (_controller!.value.isPlaying) {
-            _controller!.pause();
+          if (_controller.value.isPlaying) {
+            _controller.pause();
           } else {
-            _controller!.play();
+            _controller.play();
           }
         },
         child: AnimatedIcon(

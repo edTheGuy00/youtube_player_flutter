@@ -29,26 +29,28 @@ class LiveBottomBar extends StatefulWidget {
 class _LiveBottomBarState extends State<LiveBottomBar> {
   double _currentSliderPosition = 0.0;
 
-  YoutubePlayerController? _controller;
+  late YoutubePlayerController _controller;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _controller = YoutubePlayerController.of(context);
-    if (_controller == null) {
+    final controller = YoutubePlayerController.of(context);
+    if (controller == null) {
       assert(
         widget.controller != null,
         '\n\nNo controller could be found in the provided context.\n\n'
         'Try passing the controller explicitly.',
       );
-      _controller = widget.controller;
+      _controller = widget.controller!;
+    } else {
+      _controller = controller;
     }
-    _controller!.addListener(listener);
+    _controller.addListener(listener);
   }
 
   @override
   void dispose() {
-    _controller?.removeListener(listener);
+    _controller.removeListener(listener);
     super.dispose();
   }
 
@@ -56,10 +58,10 @@ class _LiveBottomBarState extends State<LiveBottomBar> {
     if (mounted) {
       setState(() {
         _currentSliderPosition =
-            _controller!.metadata.duration.inMilliseconds == 0
+            _controller.metadata.duration.inMilliseconds == 0
                 ? 0
-                : _controller!.value.position.inMilliseconds /
-                    _controller!.metadata.duration.inMilliseconds;
+                : _controller.value.position.inMilliseconds /
+                    _controller.metadata.duration.inMilliseconds;
       });
     }
   }
@@ -67,7 +69,7 @@ class _LiveBottomBarState extends State<LiveBottomBar> {
   @override
   Widget build(BuildContext context) {
     return Visibility(
-      visible: _controller!.value.isControlsVisible,
+      visible: _controller.value.isControlsVisible,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -80,10 +82,10 @@ class _LiveBottomBarState extends State<LiveBottomBar> {
               child: Slider(
                 value: _currentSliderPosition,
                 onChanged: (value) {
-                  _controller!.seekTo(
+                  _controller.seekTo(
                     Duration(
                       milliseconds:
-                          (_controller!.metadata.duration.inMilliseconds * value)
+                          (_controller.metadata.duration.inMilliseconds * value)
                               .round(),
                     ),
                   );
@@ -97,7 +99,7 @@ class _LiveBottomBarState extends State<LiveBottomBar> {
             ),
           ),
           InkWell(
-            onTap: () => _controller!.seekTo(_controller!.metadata.duration),
+            onTap: () => _controller.seekTo(_controller.metadata.duration),
             child: Material(
               color: widget.liveUIColor,
               child: const Text(

@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -95,7 +94,7 @@ class YoutubePlayerValue {
     double? buffered,
     bool? isPlaying,
     bool? isFullScreen,
-    double? volume,
+    int? volume,
     PlayerState? playerState,
     double? playbackRate,
     String? playbackQuality,
@@ -112,7 +111,7 @@ class YoutubePlayerValue {
       buffered: buffered ?? this.buffered,
       isPlaying: isPlaying ?? this.isPlaying,
       isFullScreen: isFullScreen ?? this.isFullScreen,
-      volume: volume as int? ?? this.volume,
+      volume: volume ?? this.volume,
       playerState: playerState ?? this.playerState,
       playbackRate: playbackRate ?? this.playbackRate,
       playbackQuality: playbackQuality ?? this.playbackQuality,
@@ -159,9 +158,7 @@ class YoutubePlayerController extends ValueNotifier<YoutubePlayerValue> {
   YoutubePlayerController({
     required this.initialVideoId,
     this.flags = const YoutubePlayerFlags(),
-  })  : assert(initialVideoId != null, 'initialVideoId can\'t be null.'),
-        assert(flags != null),
-        super(YoutubePlayerValue());
+  }) : super(YoutubePlayerValue());
 
   /// Finds [YoutubePlayerController] in the provided context.
   static YoutubePlayerController? of(BuildContext context) {
@@ -189,7 +186,7 @@ class YoutubePlayerController extends ValueNotifier<YoutubePlayerValue> {
   void pause() => _callMethod('pause()');
 
   /// Loads the video as per the [videoId] provided.
-  void load(String? videoId, {int startAt = 0, int? endAt}) {
+  void load(String videoId, {int startAt = 0, int? endAt}) {
     var loadParams = 'videoId:"$videoId",startSeconds:$startAt';
     if (endAt != null && endAt > startAt) {
       loadParams += ',endSeconds:$endAt';
