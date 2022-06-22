@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:ui' show window;
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -11,7 +10,7 @@ import 'package:youtube_player_flutter/src/utils/youtube_player_flags.dart';
 import 'package:youtube_player_flutter/src/widgets/widgets.dart';
 
 Widget buildPlayer({
-  YoutubePlayerController? controller,
+  required YoutubePlayerController controller,
   double? width,
   List<Widget>? bottomActions,
   List<Widget>? topActions,

@@ -109,8 +109,8 @@ class _RemainingDurationState extends State<RemainingDuration> {
   Widget build(BuildContext context) {
     return Text(
       "- ${durationFormatter(
-        (_controller.metadata.duration.inMilliseconds ?? 0) -
-            (_controller.value.position.inMilliseconds ?? 0),
+        (_controller.metadata.duration.inMilliseconds) -
+            (_controller.value.position.inMilliseconds),
       )}",
       style: TextStyle(
         color: Colors.grey[400],

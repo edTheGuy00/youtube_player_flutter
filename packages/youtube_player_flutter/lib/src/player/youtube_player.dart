@@ -154,7 +154,6 @@ class YoutubePlayer extends StatefulWidget {
   ///
   /// If videoId is passed as url then no conversion is done.
   static String? convertUrlToId(String url, {bool trimWhitespaces = true}) {
-    assert(url?.isNotEmpty ?? false, 'Url cannot be empty');
     if (!url.contains("http") && (url.length == 11)) return url;
     if (trimWhitespaces) url = url.trim();
 
@@ -271,8 +270,9 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
                         child: Text(
                           errorString(
                             controller.value.errorCode,
-                            videoId: controller.metadata.videoId ??
-                                controller.initialVideoId,
+                            videoId: controller.metadata.videoId.isNotEmpty
+                                ? controller.metadata.videoId
+                                : controller.initialVideoId,
                           ),
                           style: const TextStyle(
                             color: Colors.white,

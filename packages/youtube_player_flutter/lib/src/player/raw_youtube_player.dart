@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import '../enums/player_state.dart';
@@ -84,7 +83,7 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
         initialOptions: InAppWebViewGroupOptions(
           ios: IOSInAppWebViewOptions(allowsInlineMediaPlayback: true),
           crossPlatform: InAppWebViewOptions(
-            userAgent: userAgent!,
+            userAgent: userAgent,
             mediaPlaybackRequiresUserGesture: false,
             transparentBackground: true,
           ),
@@ -107,7 +106,7 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
             ..addJavaScriptHandler(
               handlerName: 'StateChange',
               callback: (args) {
-                switch (args.first as int?) {
+                switch (args.first as int) {
                   case -1:
                     controller!.updateValue(
                       controller!.value.copyWith(
@@ -117,10 +116,7 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                     );
                     break;
                   case 0:
-                    if (widget.onEnded != null) {
-                      widget.onEnded!(controller!.metadata);
-                    }
-
+                    widget.onEnded?.call(controller!.metadata);
                     controller!.updateValue(
                       controller!.value.copyWith(
                         playerState: PlayerState.ended,
@@ -169,7 +165,7 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
               callback: (args) {
                 controller!.updateValue(
                   controller!.value
-                      .copyWith(playbackQuality: args.first as String?),
+                      .copyWith(playbackQuality: args.first as String),
                 );
               },
             )
@@ -186,7 +182,7 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
               handlerName: 'Errors',
               callback: (args) {
                 controller!.updateValue(
-                  controller!.value.copyWith(errorCode: args.first as int?),
+                  controller!.value.copyWith(errorCode: args.first as int),
                 );
               },
             )
@@ -203,13 +199,11 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
               handlerName: 'VideoTime',
               callback: (args) {
                 final position = args.first * 1000;
-                final num? buffered = args.last;
+                final num buffered = args.last;
                 controller!.updateValue(
                   controller!.value.copyWith(
                     position: Duration(milliseconds: position.floor()),
-                    buffered: buffered != null
-                        ? buffered.toDouble()
-                        : controller!.value.buffered,
+                    buffered: buffered.toDouble(),
                   ),
                 );
               },
@@ -276,7 +270,7 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                         'end': ${controller!.flags.endAt}
                     },
                     events: {
-                        onReady: function(event) { 
+                        onReady: function(event) {
                           var ifr = document.getElementsByTagName('iframe')[0];
                           for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-chrome-top"))
                           {
@@ -358,7 +352,11 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
 
             function play() {
                 player.playVideo();
-                 var ifr = document.getElementsByTagName('iframe')[0];
+                return '';
+            }
+            function pause() {
+                player.pauseVideo();
+                var ifr = document.getElementsByTagName('iframe')[0];
                           for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-chrome-top"))
                           {
                             element.style.display="none";
@@ -453,7 +451,7 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                           {
                             element.style.display="none";
                             }
-                            
+
                 return '';
             }
 
@@ -530,9 +528,9 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
     </html>
   ''';
 
-  String boolean({required bool value}) => value ? "'1'" : "'0'";
+  String boolean({required bool value}) => value == true ? "'1'" : "'0'";
 
-  String? get userAgent => controller!.flags.forceHD
+  String get userAgent => controller!.flags.forceHD
       ? 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36'
-      : null;
+      : '';
 }
