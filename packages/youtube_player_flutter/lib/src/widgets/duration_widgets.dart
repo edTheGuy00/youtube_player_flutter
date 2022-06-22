@@ -83,13 +83,15 @@ class _RemainingDurationState extends State<RemainingDuration> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final controller = YoutubePlayerController.of(context);
-    if (_controller == null) {
+    if (controller == null) {
       assert(
         widget.controller != null,
         '\n\nNo controller could be found in the provided context.\n\n'
         'Try passing the controller explicitly.',
       );
       _controller = widget.controller!;
+    } else {
+      _controller = controller;
     }
     _controller.removeListener(listener);
     _controller.addListener(listener);
