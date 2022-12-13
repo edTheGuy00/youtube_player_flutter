@@ -172,9 +172,9 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
             ..addJavaScriptHandler(
               handlerName: 'PlaybackRateChange',
               callback: (args) {
-                final num rate = args.first;
+                final num? rate = args.first;
                 controller!.updateValue(
-                  controller!.value.copyWith(playbackRate: rate.toDouble()),
+                  controller!.value.copyWith(playbackRate: rate?.toDouble()),
                 );
               },
             )
@@ -260,14 +260,12 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                         'enablejsapi': 1,
                         'fs': 0,
                         'rel': 0,
-                        'showinfo': 0,
                         'iv_load_policy': 3,
-                        'modestbranding': 1,
                         'cc_load_policy': ${boolean(value: controller!.flags.enableCaption)},
                         'cc_lang_pref': '${controller!.flags.captionLanguage}',
                         'autoplay': ${boolean(value: controller!.flags.autoPlay)},
                         'start': ${controller!.flags.startAt},
-                        'end': ${controller!.flags.endAt}
+                        'end': ${controller!.flags.endAt},
                     },
                     events: {
                         onReady: function(event) {
@@ -313,6 +311,10 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                             element.style.display="none";
                             }
                              for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-suggestions"))
+                          {
+                            element.style.display="none";
+                            }
+                            for (let element of ifr.contentWindow.document.getElementsByClassName("ytp-progress-bar"))
                           {
                             element.style.display="none";
                             }

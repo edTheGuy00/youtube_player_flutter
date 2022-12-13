@@ -143,7 +143,7 @@ class _WebYoutubePlayerState extends State<RawYoutubePlayer> {
             }
 
             if (data.containsKey('VideoTime')) {
-              final position = data['VideoTime']['currentTime'] as double;
+              final position = data['VideoTime']['currentTime'];
               final buffered = data['VideoTime']['videoLoadedFraction'] as num;
 
               if (position == null || buffered == null) return;
@@ -197,11 +197,11 @@ class _WebYoutubePlayerState extends State<RawYoutubePlayer> {
                     },
                 });
             }
-            
+
             window.addEventListener('message', (event) => {
                try { eval(event.data) } catch (e) {}
             }, false);
-            
+
             function sendMessage(message) {
               window.parent.postMessage(JSON.stringify(message), '*');
             }
@@ -234,7 +234,7 @@ class _WebYoutubePlayerState extends State<RawYoutubePlayer> {
                   sendMessage({ 'VideoTime': videoTime });
                 }, 100);
             }
-            
+
             $youtubeIFrameFunctions
         </script>
     </body>
