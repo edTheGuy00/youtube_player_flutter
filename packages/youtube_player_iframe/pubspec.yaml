@@ -5,15 +5,15 @@ repository: https://github.com/sarbagyastha/youtube_player_flutter
 homepage: https://github.com/sarbagyastha/youtube_player_flutter/tree/master/packages/youtube_player_iframe
 
 environment:
-  sdk: '>=2.7.0 <3.0.0'
-  flutter: '>=1.22.0 <2.0.0'
+  sdk: ">=2.18.0 <4.0.0"
+  flutter: ">=1.22.0 <2.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
   flutter_inappwebview: ^5.7.2+2
-  url_launcher: '>=5.7.10 <6.0.2'
+  url_launcher: ">=5.7.10 <6.0.2"
 
 dev_dependencies:
   flutter_test:
